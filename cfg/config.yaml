@@ -1,0 +1,19 @@
+app:
+  # TODO
+  # runtime: "local"
+
+server:
+  port: 8997
+  host: "localhost"
+  timeout: 10s
+
+database:
+  # FIXME oh... hell shit...
+  # Default SQLite. SQLite / PostgreSQL
+  who: "sqlite"
+  # For PostgreSQL, provide a link in the following format: postgres://user:password@host:port/dbname?sslmode=disable
+  # FIXME!!! Split into its constituent elements that form the host link for PostgreSQL (user / pass / host / port)
+  host: "path/to/db/tenzoflow.db"
+
+logger:
+  # TODO one fine day :)
