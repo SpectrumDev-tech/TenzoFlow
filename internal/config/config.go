@@ -16,8 +16,9 @@ var (
 )
 
 type Config struct {
-	Server   ServerCfg   `toml:"server"`
-	Database DatabaseCfg `toml:"database"`
+	Server   ServerCfg   `yaml:"server"`
+	Database DatabaseCfg `yaml:"database"`
+	Logger   LoggerCfg   `yaml:"logger"`
 }
 
 type ServerCfg struct {
@@ -32,7 +33,10 @@ type DatabaseCfg struct {
 }
 
 // TODO type AppCfg struct{}
-// TODO type LoggerCfg struct{}
+
+type LoggerCfg struct {
+	Env string `yaml:"env" env-required:"true"`
+}
 
 func getPathOfConfig() (string, error) {
 	var path string

@@ -3,5 +3,5 @@ version: 3
 tasks:
   run:
     cmds:
-      - go run cmd/api/main.go --config path/to/config.yaml
+      - go run cmd/api/main.go
     silent: true

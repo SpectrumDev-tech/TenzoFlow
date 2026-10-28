@@ -16,4 +16,5 @@ database:
   host: "path/to/db/tenzoflow.db"
 
 logger:
-  # TODO one fine day :)
+  # Local or prod
+  env: "local"
