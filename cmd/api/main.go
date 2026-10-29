@@ -1,10 +1,10 @@
 package main
 
 import (
-	"TenzoFlow/internal/config"
-	"TenzoFlow/internal/logger"
 	"log/slog"
 	"os"
+	"tenzoflow/internal/config"
+	"tenzoflow/internal/logger"
 )
 
 func main() {
