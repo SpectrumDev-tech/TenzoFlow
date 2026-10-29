@@ -14,6 +14,6 @@ func main() {
 	log.Info("starting server",
 		slog.Int("Port", cfg.Server.Port),
 		slog.String("Host", cfg.Server.Host),
-		slog.String("Driver", cfg.Database.Who),
+		slog.String("Driver", cfg.Database.Driver),
 	)
 }

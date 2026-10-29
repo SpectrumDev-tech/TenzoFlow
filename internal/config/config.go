@@ -12,7 +12,7 @@ import (
 
 var (
 	ErrReadConfig = errors.New("error reading config")
-	ErrNotFound   = errors.New("config file not found at path")
+	ErrPathNotSet = errors.New("config path is not set (use --config flag or CONFIG_PATH)")
 )
 
 type Config struct {
@@ -28,8 +28,8 @@ type ServerCfg struct {
 }
 
 type DatabaseCfg struct {
-	Who  string `yaml:"who" env-default:"sqlite"`
-	Host string `yaml:"host" env-required:"true"`
+	Driver string `yaml:"who" env-default:"sqlite"`
+	Host   string `yaml:"host" env-required:"true"`
 }
 
 // TODO type AppCfg struct{}
@@ -51,18 +51,23 @@ func getPathOfConfig() (string, error) {
 		return path, nil
 	}
 
-	return "", ErrNotFound
+	return "", ErrPathNotSet
 }
 
 func MustLoad() *Config {
-	var cfg Config
-
 	path, err := getPathOfConfig()
 	if err != nil {
 		panic(err)
 	}
+	return MustLoadFrom(path)
+}
+
+func MustLoadFrom(path string) *Config {
+	var cfg Config
+
 	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
-		panic(fmt.Errorf("%w: %v", ErrReadConfig, err))
+		panic(fmt.Errorf("%w: %w", ErrReadConfig, err))
 	}
+
 	return &cfg
 }
