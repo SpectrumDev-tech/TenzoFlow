@@ -1,0 +1,27 @@
+# Production settings. This file is committed to git, so it must contain NO secrets.
+# The values that are not set here come from environment variables:
+#
+#   DB_PG_HOST       database host
+#   DB_PG_USER       database user
+#   DB_PG_PASSWORD   database password   <- secret, only via environment
+#   DB_PG_NAME       database name
+#
+# The application refuses to start (with a list of problems) if something is missing.
+
+server:
+  host: "0.0.0.0"          # listen on all interfaces inside a container
+  port: 8080
+  timeout: 10s
+
+database:
+  driver: "postgres"
+  postgres:
+    port: 5432
+    sslmode: "require"      # encrypted connection; use verify-full if you have a CA certificate
+    max_open_conns: 20
+    max_idle_conns: 10
+    conn_max_lifetime: 30m
+
+logger:
+  env: "prod"
+  level: "info"

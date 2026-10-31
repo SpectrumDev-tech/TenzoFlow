@@ -1,0 +1,23 @@
+# Local development with SQLite: no extra software needed.
+#   task run
+#
+# Every value can be overridden by an environment variable (names are in
+# internal/config/config.go), for example SERVER_PORT=9000 task run.
+
+server:
+  host: "localhost"
+  port: 8997
+  timeout: 10s            # read/write timeout of a single request
+  idle_timeout: 60s
+  shutdown_timeout: 30s # how long in-flight requests may finish after Ctrl+C
+
+database:
+  driver: "sqlite"        # sqlite | postgres
+  sqlite:
+    # Path to the database FILE, relative to where the program is started
+    # (the project root). Do not use "~": Go does not expand it.
+    path: "./data/app.db"
+
+logger:
+  env: "local"            # local = colored text, prod = JSON
+  # level: "debug"        # debug | info | warn | error (default: debug for local, info for prod)
