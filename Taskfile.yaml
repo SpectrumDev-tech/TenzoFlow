@@ -64,3 +64,33 @@ tasks:
     desc: Run golangci-lint
     cmds:
       - golangci-lint run ./...
+
+  # ---- frontend (web/) ----
+
+  web:install:
+    desc: Install frontend dependencies
+    dir: web
+    cmds:
+      - npm install
+
+  web:dev:
+    desc: Run the Vue dev server (http://localhost:5173)
+    dir: web
+    cmds:
+      - npm run dev
+
+  web:check:
+    desc: Type-check the frontend
+    dir: web
+    cmds:
+      - npm run type-check
+
+  web:build:
+    desc: Build the frontend into web/dist
+    dir: web
+    cmds:
+      - npm run build
+
+  dev:
+    desc: Run the API (SQLite) and the Vue dev server together
+    deps: [run, web:dev]

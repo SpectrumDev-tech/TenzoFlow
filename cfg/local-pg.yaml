@@ -10,6 +10,9 @@ server:
   port: 8997
   timeout: 10s
 
+  cors_origins:
+    - "http://localhost:5173"
+
 database:
   driver: "postgres"
   postgres:

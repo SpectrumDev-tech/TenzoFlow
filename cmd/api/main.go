@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"tenzoflow/internal/config"
 	"tenzoflow/internal/logger"
+	"tenzoflow/internal/status"
 	"tenzoflow/internal/storage"
 	"tenzoflow/internal/transport/rest"
 )
@@ -46,14 +47,34 @@ func run(cfg *config.Config, log *slog.Logger) error {
 		}
 	}()
 
+	statusSvc := status.New(
+		status.Options{Name: "tenzoflow", APIVersion: rest.ApiVersion, Env: cfg.Logger.Env, Log: log},
+		status.NewDBChecker(db, cfg.Database.Driver, log),
+	)
+
+	statusEnabled := cfg.StatusEndpointEnabled()
+
+	if !statusEnabled {
+		log.Warn("GET /api/v1/status is disabled: set the STATUS_TOKEN environment variable to enable it")
+	} else if cfg.Server.StatusToken == "" {
+		log.Warn("GET /api/v1/status is open without a token (allowed only outside prod)")
+	}
+
 	srv := &http.Server{
-		Addr:              cfg.Server.Addr(),
-		Handler:           rest.NewRouter(log),
+		Addr: cfg.Server.Addr(),
+		Handler: rest.NewRouter(rest.Options{
+			Log:           log,
+			Status:        statusSvc,
+			StatusEnabled: statusEnabled,
+			StatusToken:   cfg.Server.StatusToken,
+			CORSOrigins:   cfg.Server.CORSOrigins,
+		}),
 		ReadHeaderTimeout: cfg.Server.Timeout,
 		ReadTimeout:       cfg.Server.Timeout,
 		WriteTimeout:      cfg.Server.Timeout,
 		IdleTimeout:       cfg.Server.IdleTimeout,
-		ErrorLog:          slog.NewLogLogger(log.Handler(), slog.LevelError),
+
+		ErrorLog: slog.NewLogLogger(log.Handler(), slog.LevelError),
 	}
 	serverErr := make(chan error, 1)
 

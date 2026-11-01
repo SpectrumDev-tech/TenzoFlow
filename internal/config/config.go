@@ -42,6 +42,9 @@ type ServerCfg struct {
 	Timeout         time.Duration `yaml:"timeout" env-default:"5s"`
 	IdleTimeout     time.Duration `yaml:"idle_timeout" env-default:"60s"`
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" env-default:"30s"`
+
+	CORSOrigins []string `yaml:"cors_origins" env-separator:","`
+	StatusToken string   `yaml:"-"`
 }
 
 func (s *ServerCfg) Addr() string {
@@ -116,6 +119,12 @@ func (c *Config) Validate() error {
 		add("server.port must be 1...65535, got %d", c.Server.Port)
 	}
 
+	for _, o := range c.Server.CORSOrigins {
+		if err := validateOrigin(o); err != nil {
+			add("server.cors_origins: %v", err)
+		}
+	}
+
 	if c.Logger.Level != "" {
 		if _, err := logger.ParseLevel(c.Logger.Level); err != nil {
 			add("logger.level %v", err)
@@ -163,6 +172,19 @@ func (c *Config) Validate() error {
 	}
 
 	return errors.Join(errs...)
+}
+
+func validateOrigin(o string) error {
+	u, err := url.Parse(o)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" ||
+		u.Path != "" || u.RawQuery != "" || u.Fragment != "" || u.User != nil {
+		return fmt.Errorf("%q is not a valid origin (want scheme://host[:port] without a path or trailing slash, e.g. http://localhost:5173)", o)
+	}
+	return nil
+}
+
+func (c *Config) StatusEndpointEnabled() bool {
+	return c.Server.StatusToken != "" || c.Logger.Env != logger.EnvProd
 }
 
 func getPathOfConfig() (string, error) {
