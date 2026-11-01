@@ -4,12 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
-
-	_ "modernc.org/sqlite"
+	"tenzoflow/internal/storage/migrate"
 
 	"github.com/pressly/goose/v3"
+	_ "modernc.org/sqlite"
 )
 
 func Open(ctx context.Context, path string) (*sql.DB, error) {
@@ -32,14 +33,10 @@ func Open(ctx context.Context, path string) (*sql.DB, error) {
 	return db, nil
 }
 
-func Migrate(ctx context.Context, db *sql.DB) error {
-	goose.SetBaseFS(migrationsFS)
-	if err := goose.SetDialect("sqlite3"); err != nil {
-		return fmt.Errorf("goose set dialog: %w", err)
+func Migrate(ctx context.Context, db *sql.DB, log *slog.Logger) error {
+	fsys, err := migrationsFS()
+	if err != nil {
+		return err
 	}
-	if err := goose.UpContext(ctx, db, "migrations"); err != nil {
-		return fmt.Errorf("goose up: %w", err)
-	}
-
-	return nil
+	return migrate.Up(ctx, db, goose.DialectSQLite3, fsys, log)
 }

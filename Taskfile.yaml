@@ -1,7 +1,66 @@
 version: 3
 
 tasks:
-  run:
+  default:
+    desc: List available tasks
     cmds:
-      - go run cmd/api/main.go --config ./cfg/local.yaml
+      - task --list
     silent: true
+
+  run:
+    desc: Run the API with SQLite (local development)
+    cmds:
+      - go run ./cmd/api --config ./cfg/local.yaml
+
+  run:pg:
+    desc: Run the API against PostgreSQL in Docker
+    deps: [db:up]
+    cmds:
+      - go run ./cmd/api --config ./cfg/local-pg.yaml
+
+  db:up:
+    desc: Start PostgreSQL in Docker and wait until it is ready
+    cmds:
+      - docker compose up -d --wait postgres
+
+  db:down:
+    desc: Stop PostgreSQL (data is kept in a Docker volume)
+    cmds:
+      - docker compose down
+
+  db:reset:
+    desc: Stop PostgreSQL and DELETE its data
+    cmds:
+      - docker compose down -v
+      - docker compose up -d --wait postgres
+
+  db:psql:
+    desc: Open a psql shell inside the PostgreSQL container
+    cmds:
+      - docker compose exec postgres psql -U tenzoflow -d tenzoflow
+
+  test:
+    desc: Run unit tests (no Docker needed)
+    cmds:
+      - go test ./...
+
+  test:race:
+    desc: Run unit tests with the race detector (needs cgo / gcc)
+    cmds:
+      - go test -race ./...
+
+  test:integration:
+    desc: Run PostgreSQL integration tests (starts Docker PostgreSQL)
+    deps: [db:up]
+    cmds:
+      - go test -tags=integration ./internal/storage/postgres/...
+
+  tidy:
+    desc: Sync go.mod and go.sum with the imports
+    cmds:
+      - go mod tidy
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - golangci-lint run ./...

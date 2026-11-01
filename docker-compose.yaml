@@ -1,0 +1,32 @@
+# PostgreSQL for local development and integration tests.
+# You do not need Postgres installed on your machine; only Docker.
+#
+#   task db:up      start (waits until the database is ready)
+#   task db:psql    open a SQL shell
+#   task db:down    stop, KEEP the data
+#   task db:reset   stop and DELETE all data
+#
+# These credentials are for local use only.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: tenzoflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tenzoflow
+      POSTGRES_PASSWORD: tenzoflow
+      POSTGRES_DB: tenzoflow
+    ports:
+      # 127.0.0.1: reachable only from this computer, not from the local network.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tenzoflow -d tenzoflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

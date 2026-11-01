@@ -54,15 +54,15 @@ type DatabaseCfg struct {
 	Postgres PostgresCfg `yaml:"postgres"`
 }
 type SQLite struct {
-	Path string `yaml:"path" env-required:"true"`
+	Path string `yaml:"path"`
 }
 type PostgresCfg struct {
 	Host     string `yaml:"host" env-default:"localhost"`
 	Port     int    `yaml:"port" env-default:"5432"`
-	User     string `yaml:"user" env-required:"true"`
-	Password string `yaml:"password" env-required:"true"`
-	Name     string `yaml:"name" env-required:"true"`
-	SSLMode  string `yaml:"sslmode" env-required:"true"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
+	SSLMode  string `yaml:"sslmode"`
 
 	MaxOpenConns    int           `yaml:"max_open_conns" env-default:"10"`
 	MaxIdleConns    int           `yaml:"max_idle_conns" env-default:"5"`
@@ -114,6 +114,12 @@ func (c *Config) Validate() error {
 	}
 	if c.Server.Port < 1 || c.Server.Port > 65535 {
 		add("server.port must be 1...65535, got %d", c.Server.Port)
+	}
+
+	if c.Logger.Level != "" {
+		if _, err := logger.ParseLevel(c.Logger.Level); err != nil {
+			add("logger.level %v", err)
+		}
 	}
 
 	switch c.Logger.Env {

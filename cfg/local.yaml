@@ -20,4 +20,4 @@ database:
 
 logger:
   env: "local"            # local = colored text, prod = JSON
-  # level: "debug"        # debug | info | warn | error (default: debug for local, info for prod)
+  level: "debug"        # debug | info | warn | error (default: debug for local, info for prod)

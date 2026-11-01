@@ -8,7 +8,6 @@ import (
 func NewRouter(log *slog.Logger) http.Handler {
 	mux := http.NewServeMux()
 
-	//
 	mux.HandleFunc("GET /healthz", handleHealth)
 	mux.HandleFunc("/", handleNotFound)
 
